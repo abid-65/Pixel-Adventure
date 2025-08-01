@@ -5,10 +5,12 @@ using UnityEngine.SceneManagement;
 public class LevelManager : MonoBehaviourSingleton<LevelManager>
 {
     [SerializeField] private LevelName[] Levels;
+    [SerializeField] private int puzzleLevelCount = 200;
     
     void Start()
     {
         UnlockFirstLevel();
+        UnlockFirstPuzzleLevel();
     }
 
     private void UnlockFirstLevel()
@@ -77,6 +79,33 @@ public class LevelManager : MonoBehaviourSingleton<LevelManager>
         {
             SetLevelStatus(Levels[i], i == 0 ? LevelStatus.Unlocked : LevelStatus.Locked);
         }
+    }
+
+    private void UnlockFirstPuzzleLevel()
+    {
+        if (GetPuzzleLevelStatus(1) == LevelStatus.Locked)
+        {
+            SetPuzzleLevelStatus(1, LevelStatus.Unlocked);
+        }
+    }
+
+    public void MarkPuzzleLevelComplete(int index)
+    {
+        SetPuzzleLevelStatus(index, LevelStatus.Completed);
+        if (index < puzzleLevelCount)
+        {
+            SetPuzzleLevelStatus(index + 1, LevelStatus.Unlocked);
+        }
+    }
+
+    public LevelStatus GetPuzzleLevelStatus(int index)
+    {
+        return (LevelStatus)PlayerPrefs.GetInt($"PuzzleLevel{index}", 0);
+    }
+
+    public void SetPuzzleLevelStatus(int index, LevelStatus status)
+    {
+        PlayerPrefs.SetInt($"PuzzleLevel{index}", (int)status);
     }
 
     #region Debug Methods
